@@ -4,7 +4,8 @@ import os
 
 agent = Agent(
     name="Assistant",
-    instructions="You are a helpful assistant."
+    instructions="You are a helpful assistant.",
+    model="gpt-5.4-nano"
 )
 
 async def main():
