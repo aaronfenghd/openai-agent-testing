@@ -7,6 +7,7 @@ A first AI agent app built with the OpenAI Agents SDK and GitHub Codespaces.
 This repo now contains:
 - a simple repo assistant in `agent/`
 - an interactive **HE MDP Agent** workflow in `HE MDP agent/` for oncology CEA model planning
+- a simple Streamlit chatbot UI for the HE MDP workflow
 
 The HE MDP workflow supports:
 - iterative interview-style input gathering
@@ -21,21 +22,29 @@ The HE MDP workflow supports:
 python agent/main.py
 ```
 
-### Interactive HE MDP agent
+### Interactive HE MDP agent (terminal)
 
 ```bash
 python "./HE MDP agent/main.py"
 ```
 
-You will see:
-- `HE MDP Agent`
-- guidance to describe your CEA modeling need
-- command hints:
-  - `generate MDP` / `create MDP` / `final MDP` to generate the final structured plan
-  - `exit` / `quit` to end the session
+### HE MDP chatbot (Streamlit)
 
-The script uses `Runner.run(...)` for both:
-- interview turns (`he_mdp_interview_agent`)
-- final structured plan generation (`he_mdp_agent`)
+Install Streamlit if needed:
 
-So you must set `OPENAI_API_KEY` before running.
+```bash
+pip install streamlit
+```
+
+Run the chatbot app:
+
+```bash
+streamlit run "HE MDP agent/app.py"
+```
+
+In the chat UI:
+- describe your CEA model
+- answer follow-up interview questions
+- type `generate MDP` (or `create MDP` / `final MDP`) to generate the final markdown model development plan
+
+The HE MDP tools use `Runner.run(...)` / `Runner.run_sync(...)`, so set `OPENAI_API_KEY` in your environment before running.
