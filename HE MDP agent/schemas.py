@@ -28,6 +28,28 @@ class ValidationCheck(BaseModel):
     importance: str = Field(..., description="Why this check is important.")
 
 
+class ReferenceExtraction(BaseModel):
+    reference_type: str
+    indication: str
+    intervention: str
+    comparator: str
+    model_structure_used: str
+    model_structure_rationale: str
+    health_states: list[str]
+    model_assumptions: list[str]
+    time_horizon: str
+    cycle_length: str
+    perspective: str
+    discounting: str
+    survival_extrapolation_approach: str
+    utility_assumptions: list[str]
+    cost_categories: list[str]
+    scenario_sensitivity_analyses: list[str]
+    key_erg_opinions: list[str]
+    information_gaps: list[str]
+    applicability_to_current_mdp: str
+
+
 class ModelDevelopmentPlan(BaseModel):
     project_title: str
     indication: str

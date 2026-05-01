@@ -1,6 +1,6 @@
 from agents import Agent
 
-from schemas import ModelDevelopmentPlan
+from schemas import ModelDevelopmentPlan, ReferenceExtraction
 
 
 HE_MDP_AGENT_INSTRUCTIONS = """
@@ -27,15 +27,17 @@ Output requirements:
 - Use practical HTA-style language.
 - Do not provide medical advice or treatment recommendations.
 
+Reference integration requirements:
+- If reference extraction context is provided, explicitly use it to inform recommended model
+  structure, model structure rationale, assumptions, required parameters, scenario/sensitivity
+  analyses, and validation checks.
+- Do not blindly copy the reference if the current model context differs.
+- If the reference omits details, mark missing items as "to be confirmed".
+
 Oncology model default:
 - For oncology CEA, default to a partitioned survival model with three health states:
   progression-free, progressed disease, and death.
 - Only use an alternate model structure if the user's request clearly justifies it.
-
-Planning expectations:
-- Include model structure, assumptions, required parameters, data gaps, base-case analysis,
-  scenario analyses, sensitivity analyses, validation checks, expected deliverables, and open
-  questions for the user.
 """.strip()
 
 INTERVIEW_AGENT_INSTRUCTIONS = """
@@ -47,13 +49,31 @@ oncology CEA model development plan. You must NOT generate the final MDP documen
 Interview rules:
 - Ask concise follow-up questions in practical HTA/health-economics language.
 - Ask no more than 5 questions in a single response.
-- Prioritize high-impact missing inputs (perspective, setting, model objective, time horizon,
-  outcomes, available data sources, assumptions needing confirmation).
-- If a user has already answered something, acknowledge and move to missing items.
+- Prioritize missing, unclear, or decision-sensitive inputs.
+- If reference extraction context is provided, reason from it and propose preliminary
+  recommendations where appropriate.
+- Do not ask again for details already clearly provided in the conversation or reference context.
+- Do not blindly copy the reference if the current model appears different.
 - Do not invent data, parameter values, or evidence.
 - If information is unknown, ask whether to mark it as "to be confirmed".
 - Keep responses short and interview-oriented.
-- Do not provide treatment recommendations or medical advice.
+""".strip()
+
+REFERENCE_EXTRACTION_INSTRUCTIONS = """
+You extract health economic model development insights from pasted reference text.
+
+Requirements:
+- Return output that conforms exactly to the ReferenceExtraction schema.
+- Focus on what is useful for developing a new oncology HE model development plan.
+- Do not invent information; if absent or unclear, use "not reported".
+- Distinguish reported evidence from interpretation.
+- Pay special attention to model structure choice and model structure rationale.
+- Extract key model assumptions where present, including potential assumptions around:
+  proportional hazards, constant hazard ratio periods, treatment effect waning,
+  cure/mixture-cure assumptions, mortality constraints, treatment duration,
+  and extrapolation assumptions.
+- Extract ERG/EAG opinions where present.
+- Assess applicability to the current MDP context.
 """.strip()
 
 
@@ -66,4 +86,10 @@ he_mdp_agent = Agent(
 he_mdp_interview_agent = Agent(
     name="HE MDP Interview Agent",
     instructions=INTERVIEW_AGENT_INSTRUCTIONS,
+)
+
+reference_extraction_agent = Agent(
+    name="HE MDP Reference Extraction Agent",
+    instructions=REFERENCE_EXTRACTION_INSTRUCTIONS,
+    output_type=ReferenceExtraction,
 )
