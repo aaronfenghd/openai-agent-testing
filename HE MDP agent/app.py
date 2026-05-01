@@ -9,6 +9,7 @@ from oncology_model_plan_agent import (
     he_mdp_interview_agent,
     reference_extraction_agent,
 )
+from knowledge_retriever import retrieve_knowledge
 from render import render_plan_as_markdown
 from schemas import ReferenceExtraction
 
@@ -245,6 +246,7 @@ def main() -> None:
 
     context = build_context(st.session_state.messages)
     reference_context = build_reference_context(st.session_state.reference_extraction)
+    knowledge_context = retrieve_knowledge(context + "\n\n" + reference_context, max_files=4)
     normalized = user_input.strip().lower()
 
     with st.chat_message("assistant"):
@@ -252,11 +254,16 @@ def main() -> None:
             if normalized in GENERATE_COMMANDS:
                 result = Runner.run_sync(
                     he_mdp_agent,
-                    "Create the final Health Economic Model Development Plan using BOTH conversation and "
-                    "reference extraction context. Explain how reference informed structure/rationale, assumptions, "
-                    "required parameters, scenarios/sensitivity, and validation checks. Mark missing as 'to be confirmed'. "
-                    "Do not invent data.\n\n"
-                    f"{reference_context}\n\nCONVERSATION:\n{context}",
+                    "Create the final Health Economic Model Development Plan using curated health economics "
+                    "knowledge as general guidance only, plus project-specific user and reference-derived context. "
+                    "Clearly distinguish: (1) user-provided project information, (2) reference-derived information, "
+                    "(3) general curated HE guidance. If curated guidance conflicts with reference/user context, flag "
+                    "the issue and include open questions. Explain how structure/rationale, assumptions, required "
+                    "parameters, scenario/sensitivity analyses, and validation checks were informed. Mark missing as "
+                    "'to be confirmed'. Do not invent clinical, cost, utility, survival, or epidemiological data.\n\n"
+                    f"CURATED HEALTH ECONOMICS KNOWLEDGE:\n{knowledge_context or 'No curated snippets retrieved.'}\n\n"
+                    f"REFERENCE-DERIVED CONTEXT:\n{reference_context}\n\n"
+                    f"CONVERSATION HISTORY:\n{context}",
                 )
                 plan = result.final_output
                 final_report = render_plan_as_markdown(plan)
@@ -266,9 +273,14 @@ def main() -> None:
             else:
                 result = Runner.run_sync(
                     he_mdp_interview_agent,
-                    "Continue interview using conversation and reference extraction context. Ask concise targeted "
-                    "follow-up questions (max 5), avoid re-asking known information, and do not generate final MDP yet.\n\n"
-                    f"{reference_context}\n\nCONVERSATION:\n{context}",
+                    "Continue the HE MDP interview. Use curated health economics knowledge as general guidance only, "
+                    "not project-specific evidence. Distinguish user-provided project information vs reference-derived "
+                    "information vs curated guidance. If curated guidance conflicts with user/reference context, flag and "
+                    "ask for clarification. Ask concise targeted follow-up questions (max 5), avoid re-asking known "
+                    "information, and do not generate final MDP yet.\n\n"
+                    f"CURATED HEALTH ECONOMICS KNOWLEDGE:\n{knowledge_context or 'No curated snippets retrieved.'}\n\n"
+                    f"REFERENCE-DERIVED CONTEXT:\n{reference_context}\n\n"
+                    f"CONVERSATION HISTORY:\n{context}",
                 )
                 reply = str(result.final_output)
                 st.markdown(reply)

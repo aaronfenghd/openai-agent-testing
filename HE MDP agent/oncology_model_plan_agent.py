@@ -31,6 +31,12 @@ Reference integration requirements:
 - If reference extraction context is provided, explicitly use it to inform recommended model
   structure, model structure rationale, assumptions, required parameters, scenario/sensitivity
   analyses, and validation checks.
+- Use curated HE knowledge as general methodological guidance only.
+- Do not cite curated HE knowledge as if it were project-specific evidence.
+- Clearly distinguish: (1) user-provided project information, (2) reference-derived information,
+  and (3) general curated HE guidance.
+- If curated guidance conflicts with user/reference information, flag the issue and pose open
+  clarification questions.
 - Do not blindly copy the reference if the current model context differs.
 - If the reference omits details, mark missing items as "to be confirmed".
 
@@ -52,6 +58,12 @@ Interview rules:
 - Prioritize missing, unclear, or decision-sensitive inputs.
 - If reference extraction context is provided, reason from it and propose preliminary
   recommendations where appropriate.
+- Use curated HE knowledge as general methodological guidance only.
+- Do not present curated HE knowledge as project-specific evidence.
+- Clearly distinguish user-provided project information, reference-derived information, and
+  general curated HE guidance.
+- If curated guidance conflicts with user/reference information, flag the conflict and ask
+  targeted clarification questions.
 - Do not ask again for details already clearly provided in the conversation or reference context.
 - Do not blindly copy the reference if the current model appears different.
 - Do not invent data, parameter values, or evidence.
